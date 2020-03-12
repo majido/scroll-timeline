@@ -83,7 +83,7 @@
     }
   </style>
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/styles/default.min.css">
-  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
   <title>Parallax using ScrollTimeline</title>
 </head>
 <body>
@@ -161,8 +161,27 @@
 </body>
 </script>
 <script type="module">
-import '../../scroll-timeline.js';
-import '../../intersection-based-offset.js';
+// import '../../scroll-timeline.js';
+// import '../../intersection-based-offset.js';
+
+// Create a simple animation function that accepts timeline as an option
+function installPolyfill(scope) {
+  let nativeAnimate = scope.Element.prototype.animate;
+  scope.Element.prototype.animate = function(keyframes, options) {
+    let timeline = options.timeline;
+    if (!timeline || !(timeline instanceof ScrollTimeline)) {
+      return nativeAnimate.apply(this, arguments);
+    }
+
+    const effect = new KeyframeEffect(this, keyframes, options);
+    const animation = new Animation(effect, timeline);
+    animation.play();
+    return animation;
+  };
+}
+
+installPolyfill(window);
+
 
 function $(query) {
   return document.querySelector(query);
@@ -178,6 +197,7 @@ function animateParallax() {
           startScrollOffset: {target: header, edge: 'end', clamp: true},
           endScrollOffset: {target: header, clamp: true},
           fill: 'both',
+          timeRange: 10000,
       })
     });
 }
@@ -192,6 +212,7 @@ function animateZoom() {
           startScrollOffset: {target: container, edge: 'end', threshold: 1, clamp: true},
           endScrollOffset: {target: container, threshold: 1, clamp: true},
           fill: 'both',
+          timeRange: 10000,
       })
   });
 }
@@ -206,6 +227,7 @@ function animatePan() {
           startScrollOffset: {target: container, edge: 'end', clamp: true},
           endScrollOffset: {target: container, clamp: true},
           fill: 'both',
+          timeRange: 10000,
       })
   });
 }
@@ -220,6 +242,7 @@ function animateWipe() {
           startScrollOffset: {target: container, edge: 'end', clamp: true},
           endScrollOffset: {target: container, clamp: true},
           fill: 'both',
+          timeRange: 10000,
       })
   });
 }
@@ -238,6 +261,7 @@ function animateHeaders() {
             startScrollOffset: {target: headers[i], edge: 'end', rootMargin: '-20px', clamp: true},
             endScrollOffset: {target: headers[i], edge: 'end', threshold: 1, rootMargin: '-20px', clamp: true},
             fill: 'both',
+            timeRange: 10000,
         })
     });
   }
